@@ -3,4 +3,3 @@
 target
 .settings
 /file-service.iml
-/src/main/java/cn/marsar/cloud/fileserver/service/custom/*.java~HEAD

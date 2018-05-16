@@ -3,7 +3,6 @@ package com.mrxu.cloud.file;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.context.annotation.ComponentScan;
 
 /**
  * @author ifocusing-xuzhiwei
@@ -11,8 +10,10 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @EnableDiscoveryClient
 @SpringBootApplication(scanBasePackages = {"com.mrxu.cloud.*"})
-public class FileServiceApplication {
+public class FileServiceApp {
     public static void main(String[] args) {
-        new SpringApplicationBuilder(FileServiceApplication.class).run(args);
+        //System.setProperty("org.eclipse.jetty.server.Request.maxFormContentSize", String.valueOf(Integer.MAX_VALUE));
+        //System.setProperty("org.eclipse.jetty.server.Request.maxFormKeys", String.valueOf(Integer.MAX_VALUE));
+        new SpringApplicationBuilder(FileServiceApp.class).run(args);
     }
 }

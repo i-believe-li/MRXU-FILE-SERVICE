@@ -36,10 +36,10 @@
         </javaTypeResolver>
 
         <!-- !!!! Model Configurations !!!! -->
-        <javaModelGenerator targetPackage="com.mrxu.cloud.file.mybatis.domain" targetProject="src/main/java">
+        <javaModelGenerator targetPackage="com.mrxu.cloud.file.mybatis.entity" targetProject="src/main/java">
             <property name="enableSubPackages" value="false"/>
             <property name="trimStrings" value="true"/>
-            <property name="rootClass" value="om.mrxu.cloud.a2a.domain.BaseEntity"/>
+            <property name="rootClass" value="com.mrxu.cloud.common.entity.BaseEntity"/>
         </javaModelGenerator>
 
         <!-- !!!! Mapper XML Configurations !!!! -->
@@ -53,9 +53,7 @@
         </javaClientGenerator>
 
         <!-- !!!! Table Configurations !!!! -->
-        <!--
-            <table tableName="file_info" domainObjectName="FileInfo"/>
-            <table tableName="file_trans_schedule" domainObjectName="FileTransSchedule"/>
-         -->
+        <table tableName="file_info" domainObjectName="FileInfo"/>
+        <table tableName="file_trans_schedule" domainObjectName="FileTransSchedule"/>
     </context>
 </generatorConfiguration>
