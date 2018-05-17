@@ -1,6 +1,7 @@
 package com.mrxu.cloud.file.controller;
 
 import com.mrxu.cloud.common.View;
+import com.mrxu.cloud.file.depend.IVestaService;
 import com.mrxu.cloud.file.service.IFileService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -24,6 +25,8 @@ public class FileController {
 
     @Resource(name = "fastdfs")
     IFileService fileService;
+    @Autowired
+    IVestaService vestaService;
 
     @ApiOperation("上传图片")
     @RequestMapping(value = {"upload"}, method = {RequestMethod.POST})
@@ -33,5 +36,11 @@ public class FileController {
         view.setCode(200);
         view.setData(url);
         return view ;
+    }
+
+    @ApiOperation("获取ID")
+    @RequestMapping(value = {"genid"}, method = {RequestMethod.POST,RequestMethod.GET})
+    public long genid(){
+        return vestaService.genId();
     }
 }
