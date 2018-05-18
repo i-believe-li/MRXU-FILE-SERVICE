@@ -1,8 +1,12 @@
 package com.mrxu.cloud.file.controller;
 
 import com.mrxu.cloud.common.View;
-import com.mrxu.cloud.file.depend.IVestaService;
-import com.mrxu.cloud.file.service.IFileService;
+import com.mrxu.cloud.common.enums.MessageCodeEnum;
+import com.mrxu.cloud.common.exception.MrxuException;
+import com.mrxu.cloud.file.depend.VestaService;
+import com.mrxu.cloud.file.entity.vo.FileInfoVO;
+import com.mrxu.cloud.file.service.IFileInfoService;
+import com.mrxu.cloud.file.service.filesys.IFileSystemService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,24 +27,13 @@ import javax.annotation.Resource;
 @Api(value = "文件处理(上传、删除、转码)", description = "文件处理")
 public class FileController {
 
-    @Resource(name = "fastdfs")
-    IFileService fileService;
     @Autowired
-    IVestaService vestaService;
+    IFileInfoService fileInfoService;
 
-    @ApiOperation("上传图片")
+    @ApiOperation("文件上传")
     @RequestMapping(value = {"upload"}, method = {RequestMethod.POST})
-    public View<String> upload(@RequestParam MultipartFile file){
-        String url = fileService.upload(file);
-        View view = new View();
-        view.setCode(200);
-        view.setData(url);
-        return view ;
-    }
-
-    @ApiOperation("获取ID")
-    @RequestMapping(value = {"genid"}, method = {RequestMethod.POST,RequestMethod.GET})
-    public long genid(){
-        return vestaService.genId();
+    public View<FileInfoVO> upload(@RequestParam MultipartFile file) throws MrxuException{
+        FileInfoVO data = this.fileInfoService.upload(file);
+        return MessageCodeEnum.SUCCESS.toView(data);
     }
 }

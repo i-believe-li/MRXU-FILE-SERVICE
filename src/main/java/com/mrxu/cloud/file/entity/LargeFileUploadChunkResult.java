@@ -42,8 +42,8 @@ public class LargeFileUploadChunkResult implements Serializable{
 
     /**
      * constructor
-     * @param fileOffset begin of the this file chunk
-     * @param fileEnd end of the this file chunk
+     * @param fileOffset begin of the this filesys chunk
+     * @param fileEnd end of the this filesys chunk
      * @param partNumber the part number
      * @param fileCheckNum the check number
      * @param length length

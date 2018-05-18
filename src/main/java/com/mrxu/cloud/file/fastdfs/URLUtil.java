@@ -6,7 +6,7 @@ import java.net.URL;
 
 public class URLUtil {
     /**
-     * get class file path
+     * get class filesys path
      * @param clazz
      * @return
      */

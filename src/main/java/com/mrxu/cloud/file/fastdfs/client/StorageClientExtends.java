@@ -9,7 +9,7 @@ import org.csource.fastdfs.UploadCallback;
 import java.io.IOException;
 
 /**
- * override fastdfs method
+ * override local method
  */
 public class StorageClientExtends extends org.csource.fastdfs.StorageClient {
     public StorageClientExtends() {

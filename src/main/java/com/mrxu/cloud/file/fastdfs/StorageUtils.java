@@ -33,7 +33,7 @@ public class StorageUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(StorageUtils.class);
 
     /**
-     * single thread to config fastdfs config
+     * single thread to config local config
      */
     private static boolean isInit = false;
 
@@ -50,7 +50,7 @@ public class StorageUtils {
      */
     private static void init() throws Exception {
         String classPath = URLUtil.getClassPath(StorageUtils.class);
-        int index = classPath.indexOf("file:");
+        int index = classPath.indexOf("filesys:");
         classPath = classPath.substring(0, index == -1 ? classPath.length() : index);
         String configFilePath = classPath.lastIndexOf(File.separator) != (classPath.length() - 1) ? classPath + File.separator + "client.conf" : classPath + "client.conf";
         ClientGlobal.init(configFilePath);
@@ -67,7 +67,7 @@ public class StorageUtils {
 
 
     /**
-     * uplod file
+     * uplod filesys
      *
      * @param buffer
      * @param largeFileUploadResult

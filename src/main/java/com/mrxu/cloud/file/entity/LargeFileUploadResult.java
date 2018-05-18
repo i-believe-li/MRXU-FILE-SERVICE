@@ -22,7 +22,7 @@ public class LargeFileUploadResult implements Serializable {
 
     /**
      * Amount of bytes that were correctly validated.<br>
-     * When resuming an upload, all bytes in the file that have not been validated are revalidated.
+     * When resuming an upload, all bytes in the filesys that have not been validated are revalidated.
      * 上传了的文件中验证了的大小
      */
     private AtomicLong crcedBytes;
@@ -31,7 +31,7 @@ public class LargeFileUploadResult implements Serializable {
     private String firstChunkCrc;
 
     /**
-     * is finish upload file
+     * is finish upload filesys
      */
     private AtomicBoolean status = new AtomicBoolean(false);
 
@@ -50,7 +50,7 @@ public class LargeFileUploadResult implements Serializable {
      */
     private Boolean error = false;
     /**
-     * upload file id
+     * upload filesys id
      */
     private String uploadFileId;
     /**
