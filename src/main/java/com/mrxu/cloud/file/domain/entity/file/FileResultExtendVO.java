@@ -1,0 +1,32 @@
+package com.mrxu.cloud.file.domain.entity.file;
+
+import java.io.Serializable;
+import java.util.List;
+
+/**
+ * @author ifocusing-xuzhiwei
+ * @since 2018/3/14
+ */
+public class FileResultExtendVO implements Serializable{
+    private static final long serialVersionUID = -622040334806926923L;
+    //拓展文件类型
+    private String extendType;
+    //拓展文件多个子文件集
+    private List<FileResultExtendTargetVO> targetList;
+
+    public String getExtendType() {
+        return extendType;
+    }
+
+    public void setExtendType(String extendType) {
+        this.extendType = extendType;
+    }
+
+    public List<FileResultExtendTargetVO> getTargetList() {
+        return targetList;
+    }
+
+    public void setTargetList(List<FileResultExtendTargetVO> targetList) {
+        this.targetList = targetList;
+    }
+}
