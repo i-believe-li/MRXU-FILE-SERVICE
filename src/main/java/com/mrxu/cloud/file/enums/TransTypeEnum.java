@@ -6,12 +6,13 @@ package com.mrxu.cloud.file.enums;
  */
 public enum TransTypeEnum {
 
-    thumbnail("thumbnail"),
-    m3u8("m3u8"),
-    ts("ts"),
-    flv("flv"),
-    mp4("mp4"),
-    picAlbum("picAlbum");
+    Thumbnail("thumbnail"),
+    M3u8("m3u8"),
+    Ts("ts"),
+    Flv("flv"),
+    Mp4("mp4"),
+    PicAlbum("picAlbum"),
+    Model("model"),
     ;
 
     private String itemLabel;

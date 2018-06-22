@@ -14,8 +14,6 @@ import org.springframework.cloud.netflix.feign.EnableFeignClients;
 @SpringBootApplication(scanBasePackages = {"com.mrxu.cloud.*"})
 public class FileServiceApplication {
     public static void main(String[] args) {
-        //System.setProperty("org.eclipse.jetty.server.Request.maxFormContentSize", String.valueOf(Integer.MAX_VALUE));
-        //System.setProperty("org.eclipse.jetty.server.Request.maxFormKeys", String.valueOf(Integer.MAX_VALUE));
         new SpringApplicationBuilder(FileServiceApplication.class).run(args);
     }
 }
