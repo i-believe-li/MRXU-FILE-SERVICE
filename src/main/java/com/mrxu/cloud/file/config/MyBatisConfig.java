@@ -25,7 +25,7 @@ import java.util.Properties;
 
 @Configuration
 @EnableTransactionManagement
-@MapperScan(basePackages = "com.mrxu.cloud.file.mybatis.mapper")
+@MapperScan(basePackages = "com.mrxu.cloud.file.mapper")
 public class MyBatisConfig {
 
     private Logger LOG = LoggerFactory.getLogger(MyBatisConfig.class);

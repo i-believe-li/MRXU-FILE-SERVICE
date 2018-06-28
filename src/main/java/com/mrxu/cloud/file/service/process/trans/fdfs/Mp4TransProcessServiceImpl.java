@@ -66,12 +66,12 @@ public class Mp4TransProcessServiceImpl implements IFileProcessService<FileReque
         //返回对象封装
         FileResponseTransDO fileResponse = new FileResponseTransDO();
         fileResponse.setParentId(request.getFileId());
-        fileResponse.setTargetFileExtension(request.getTargetType());
-        fileResponse.setTargetFileName(fileName + request.getTargetType());
+        fileResponse.setTargetFileExtension("mp4");
+        fileResponse.setTargetFileName(fileName + ".mp4");
         //视频缩略图可以沿用父类抽帧
         fileResponse.setTargetThumbnail(request.getThumbnail());
-        fileResponse.setTargetFileExtension(request.getTargetType());
-        fileResponse.setTargetType(FileTypeUtil.findResTypeEnum(request.getTargetType()));
+        fileResponse.setTargetType(FileTypeUtil.findResTypeEnum(request.getTransType()));
+        fileResponse.setTargetTransType(request.getTransType());
         fileResponse.setTargetUnionCode(unionCode);
         fileResponse.setTargetUrl(mp4Url);
         return fileResponse;

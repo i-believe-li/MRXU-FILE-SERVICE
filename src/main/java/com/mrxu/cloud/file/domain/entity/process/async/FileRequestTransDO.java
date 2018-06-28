@@ -21,7 +21,7 @@ public class FileRequestTransDO extends BaseEntity {
     //文件URL
     private String fileUrl;
     //目标类型
-    private String targetType;
+    private String transType;
     //缩略图 --如果是视屏的话可以沿用父类的缩略图，无需重新抽帧
     private String thumbnail;
     //转码实例name
@@ -76,12 +76,12 @@ public class FileRequestTransDO extends BaseEntity {
         this.fileName = fileName;
     }
 
-    public String getTargetType() {
-        return targetType;
+    public String getTransType() {
+        return transType;
     }
 
-    public void setTargetType(String targetType) {
-        this.targetType = targetType;
+    public void setTransType(String transType) {
+        this.transType = transType;
     }
 
     public String getThumbnail() {

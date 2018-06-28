@@ -17,6 +17,8 @@ public class FileResponseTransDO extends BaseEntity {
     private String parentId;
     //目标类型
     private String targetType;
+    //目标转码类型
+    private String targetTransType;
     //目标文件名称
     private String targetFileName;
     //目标文件拓展名
@@ -92,5 +94,13 @@ public class FileResponseTransDO extends BaseEntity {
 
     public void setList(List<TransExtendDTO> list) {
         this.list = list;
+    }
+
+    public String getTargetTransType() {
+        return targetTransType;
+    }
+
+    public void setTargetTransType(String targetTransType) {
+        this.targetTransType = targetTransType;
     }
 }

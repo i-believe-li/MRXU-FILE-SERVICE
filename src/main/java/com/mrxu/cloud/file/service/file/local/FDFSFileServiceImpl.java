@@ -230,7 +230,7 @@ public class FDFSFileServiceImpl implements IFileService {
 		// 判断是否已经加入转码任务中
 		// 未加入主动请求提高转码优先级，并撤出主动转码
 		FileTransScheduleExample fileTransScheduleExample = new FileTransScheduleExample();
-		fileTransScheduleExample.createCriteria().andFileIdEqualTo(transParentId).andTargetTypeEqualTo(targetType);
+		fileTransScheduleExample.createCriteria().andFileIdEqualTo(transParentId).andTransTypeEqualTo(targetType);
 		List<FileTransSchedule> fileTransScheduleList = fileTransScheduleMapper.selectByExample(fileTransScheduleExample);
 		return null;
 	}
@@ -291,7 +291,7 @@ public class FDFSFileServiceImpl implements IFileService {
 					fileTransSchedule.setOriginUrl(url);
 					fileTransSchedule.setFileName(fileRequestSync.getFileName());
 					fileTransSchedule.setFilePath(fileRequestSync.getFilePath());
-					fileTransSchedule.setTargetType(fileTypeEntity.getTargetType());
+					fileTransSchedule.setTransType(fileTypeEntity.getTargetType());
 					fileTransSchedule.setProcessInstance(processInstance);
 					transScheduleList.add(fileTransSchedule);
 				} else {
@@ -498,7 +498,7 @@ public class FDFSFileServiceImpl implements IFileService {
 			if(StringUtils.isEmpty(targetUrl)){
 				//检查转码表，当转码进度小于等于1时，返回转码中的状态
 				FileTransScheduleExample fileTransScheduleExample = new FileTransScheduleExample();
-				fileTransScheduleExample.createCriteria().andFileIdEqualTo(fileId).andTargetTypeEqualTo(targetType);
+				fileTransScheduleExample.createCriteria().andFileIdEqualTo(fileId).andTransTypeEqualTo(targetType);
 				List<FileTransSchedule> transScheduleList = this.fileTransScheduleMapper.selectByExample(fileTransScheduleExample);
 				if(null != transScheduleList && !transScheduleList.isEmpty()){
 					FileTransSchedule fileTransSchedule = transScheduleList.get(0);

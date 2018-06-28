@@ -39,6 +39,7 @@ public class FlvTransProcessServiceImpl implements IFileProcessService<FileReque
     public FileResponseTransDO process(FileRequestTransDO request) throws MrxuException {
         //源文件路径
         String filePath = request.getFilePath();
+        //文件名
         String fileName = request.getFileName();
 
         if(StringUtils.isNotEmpty(fileName)){
@@ -67,12 +68,12 @@ public class FlvTransProcessServiceImpl implements IFileProcessService<FileReque
         
         FileResponseTransDO fileResponse = new FileResponseTransDO();
         fileResponse.setParentId(request.getFileId());
-        fileResponse.setTargetFileExtension(request.getTargetType());
-        fileResponse.setTargetFileName(fileName + request.getTargetType());
+        fileResponse.setTargetFileExtension("flv");
+        fileResponse.setTargetFileName(fileName + "flv");
         //视频缩略图可以沿用父类抽帧
         fileResponse.setTargetThumbnail(request.getThumbnail());
-        fileResponse.setTargetFileExtension(request.getTargetType());
-        fileResponse.setTargetType(FileTypeUtil.findResTypeEnum(request.getTargetType()));
+        fileResponse.setTargetType(FileTypeUtil.findResTypeEnum(request.getTransType()));
+        fileResponse.setTargetTransType(request.getTransType());
         fileResponse.setTargetUnionCode(unionCode);
         fileResponse.setTargetUrl(flvUrl);
         return fileResponse;

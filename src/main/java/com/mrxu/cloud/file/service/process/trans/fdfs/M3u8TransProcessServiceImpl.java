@@ -115,12 +115,12 @@ public class M3u8TransProcessServiceImpl implements IFileProcessService<FileRequ
             //返回对象封装
             FileResponseTransDO fileResponse = new FileResponseTransDO();
             fileResponse.setParentId(request.getFileId());
-            fileResponse.setTargetFileExtension(request.getTargetType());
-            fileResponse.setTargetFileName(fileName + request.getTargetType());
+            fileResponse.setTargetFileExtension("m3u8");
+            fileResponse.setTargetFileName(fileName + ".m3u8");
             //视频缩略图可以沿用父类抽帧
             fileResponse.setTargetThumbnail(request.getThumbnail());
-            fileResponse.setTargetFileExtension(request.getTargetType());
-            fileResponse.setTargetType(FileTypeUtil.findResTypeEnum(request.getTargetType()));
+            fileResponse.setTargetType(FileTypeUtil.findResTypeEnum(request.getTransType()));
+            fileResponse.setTargetTransType(request.getTransType());
             fileResponse.setTargetUnionCode(unionCode);
             fileResponse.setTargetUrl(m3u8Url);
             //ts集合
