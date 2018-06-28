@@ -50,7 +50,7 @@ public class FlvTransProcessServiceImpl implements IFileProcessService<FileReque
             //TODO 文件不存在需要下载到本地再处理
             String originUrl = request.getFileUrl();
             //下载成功即可保证与之前文件一致不用在更新任务表中字段
-            FileUtil.downLoadFromUrl(originUrl, fileName, filePath);
+            FileUtil.downLoadFromUrl(originUrl, filePath);
         }
 
         //目标文件存放地址
