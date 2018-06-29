@@ -8,7 +8,7 @@ import com.mrxu.cloud.common.enums.MrxuExceptionEnums;
 import com.mrxu.cloud.common.exception.MrxuException;
 import com.mrxu.cloud.common.util.DateUtil;
 import com.mrxu.cloud.file.config.AliyunOSSConfig;
-import com.mrxu.cloud.file.domain.entity.trans.TransCodingDTO;
+import com.mrxu.cloud.file.domain.trans.TransCodingDTO;
 import com.mrxu.cloud.file.enums.TransTypeEnum;
 import com.mrxu.cloud.file.util.OSSKeyGenerator;
 import com.sun.jndi.toolkit.url.UrlUtil;

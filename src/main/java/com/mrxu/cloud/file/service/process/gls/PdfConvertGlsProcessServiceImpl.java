@@ -1,20 +1,12 @@
 package com.mrxu.cloud.file.service.process.gls;
 
-import com.mrxu.cloud.common.enums.MrxuExceptionEnums;
 import com.mrxu.cloud.common.exception.MrxuException;
-import com.mrxu.cloud.common.util.FileUtil;
-import com.mrxu.cloud.common.util.MathUtil;
-import com.mrxu.cloud.file.domain.entity.process.sync.FileRequestSyncDTO;
-import com.mrxu.cloud.file.domain.entity.process.sync.FileResponseExtendSyncDTO;
-import com.mrxu.cloud.file.domain.entity.process.sync.FileResponseExtendTargetSyncDTO;
-import com.mrxu.cloud.file.domain.entity.process.sync.FileResponseSyncDTO;
-import com.mrxu.cloud.file.enums.TransTypeEnum;
+import com.mrxu.cloud.file.domain.process.sync.FileRequestSyncDTO;
+import com.mrxu.cloud.file.domain.process.sync.FileResponseSyncDTO;
 import com.mrxu.cloud.file.service.file.IFileService;
 import com.mrxu.cloud.file.service.process.IFileProcessService;
-import net.coobird.thumbnailator.Thumbnails;
 //import org.apache.pdfbox.pdmodel.PDDocument;
 //import org.apache.pdfbox.rendering.PDFRenderer;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -26,8 +18,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * PDF转图文集
@@ -52,7 +42,7 @@ public class PdfConvertGlsProcessServiceImpl implements IFileProcessService<File
         //图文集封面缩略图
         String thumbnail = null;
 
-        List<FileResponseExtendTargetSyncDTO> targetList = new ArrayList<>();
+        List<FileResponseExtendDetailSyncDTO> targetList = new ArrayList<>();
         PDDocument doc = null;
         try {
             doc = PDDocument.load(new File(filePath));
@@ -84,7 +74,7 @@ public class PdfConvertGlsProcessServiceImpl implements IFileProcessService<File
                     //返回数据 -- 缩略图
                     thumbnail = imageThumbnailUrl;
                 }
-                FileResponseExtendTargetSyncDTO target = new FileResponseExtendTargetSyncDTO();
+                FileResponseExtendDetailSyncDTO target = new FileResponseExtendDetailSyncDTO();
                 target.setTargetUrl(imageUrl);
                 target.setThumbnail(imageThumbnailUrl);
                 target.setUnionKey(unionCode);

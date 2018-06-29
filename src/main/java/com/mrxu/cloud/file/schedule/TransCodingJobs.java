@@ -6,23 +6,19 @@ import com.mrxu.cloud.file.depend.VestaService;
 import com.mrxu.cloud.file.domain.FileTransSchedule;
 import com.mrxu.cloud.file.domain.FileTransScheduleExample;
 import com.mrxu.cloud.file.domain.Files;
-import com.mrxu.cloud.file.domain.entity.process.async.FileRequestTransDO;
-import com.mrxu.cloud.file.domain.entity.process.async.FileResponseTransDO;
-import com.mrxu.cloud.file.domain.entity.trans.TransExtendDTO;
+import com.mrxu.cloud.file.domain.process.async.FileRequestTransDO;
+import com.mrxu.cloud.file.domain.process.async.FileResponseTransDO;
+import com.mrxu.cloud.file.domain.trans.TransExtendDTO;
 import com.mrxu.cloud.file.enums.StatusEnum;
-import com.mrxu.cloud.file.enums.TransTypeEnum;
 import com.mrxu.cloud.file.mapper.FileTransScheduleMapper;
 import com.mrxu.cloud.file.mapper.FilesMapper;
 import com.mrxu.cloud.file.service.file.custom.FileAuxiliaryService;
 import com.mrxu.cloud.file.service.process.IFileProcessService;
-import com.mrxu.cloud.file.util.FileTypeUtil;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.util.List;
 
 /**
@@ -50,43 +46,27 @@ public class TransCodingJobs {
      */
     @Scheduled(fixedDelay = HALF_MINUTES)
     public void fixedDelayJob(){
+        //查询优先排除已经失败的
         FileTransScheduleExample example = new FileTransScheduleExample();
         example.createCriteria().andScheduleNumLessThanOrEqualTo(2);
         List<FileTransSchedule> fileTransScheduleList = fileTransScheduleMapper.selectByExample(example);
         if(null != fileTransScheduleList && !fileTransScheduleList.isEmpty()){
             for(FileTransSchedule fileTransSchedule : fileTransScheduleList){
-                long modifyTime = fileTransSchedule.getGmtModified();
-                long currentTime = System.currentTimeMillis();
-                int scheduleTime = fileTransSchedule.getScheduleNum();
-                //如果错误后第二次及以上，需要间隔10分钟
-                if(scheduleTime > 0 && (((currentTime - modifyTime)/1000)/60) < 10){
-                    //中断此次循环，继续下次循环
+                //判断是否需要执行当前任务
+                if(!this.isNext(fileTransSchedule)){
                     continue;
                 }
 
-                /******处理入参*******/
-                String transType = fileTransSchedule.getTransType();
-                String fileId = fileTransSchedule.getFileId();
-                Files fileInfo = filesMapper.selectByPrimaryKey(fileId);
-                FileRequestTransDO request = new FileRequestTransDO();
-                request.setFileId(fileId);
-                request.setFileName(fileTransSchedule.getFileName());
-                request.setFilePath(fileTransSchedule.getFilePath());
-                request.setFileUrl(fileTransSchedule.getOriginUrl());
-                request.setTransType(transType);
-                request.setScheduleId(fileTransSchedule.getId());
-                request.setThumbnail(fileInfo.getThumbnail());
-                request.setProcessInstance(fileTransSchedule.getProcessInstance());
-
-                //转码线程
+                /*
+                    @Description 封装入参，传入线程异步处理
+                    @Create By xuzw
+                 */
+                FileRequestTransDO request = genRequestParam(fileTransSchedule);
                 Thread transThread = new Thread(new TransRunnable(request));
                 transThread.start();
 
-                FileTransSchedule fileTransSchedule_update = new FileTransSchedule();
-                fileTransSchedule_update.setId(fileTransSchedule.getId());
-                fileTransSchedule_update.setScheduleNum(fileTransSchedule.getScheduleNum()+1);
-                fileTransSchedule_update.setGmtModified(System.currentTimeMillis());
-                fileTransScheduleMapper.updateByPrimaryKeySelective(fileTransSchedule_update);
+                //记录任务执行次数(做次数加一操作)
+                this.addScheduleNum(fileTransSchedule);
             }
         } else {
             LOG.warn("提示：当前没有需要转码的任务！");
@@ -111,7 +91,7 @@ public class TransCodingJobs {
 
     /**
      * 内部类
-     *      * final 不能被继承
+     *      * final 不能被继承 -- 安全与效率
      * @author ifocusing-xuzhiwei
      * @since 2017/11/22
      */
@@ -138,17 +118,6 @@ public class TransCodingJobs {
                 LOG.warn(">>>>>请求转码的目标文件就是源文件,该任务直接删除！");
                 this.deleteSchedule(scheduleId, originFilePath);
                 return;
-            }
-
-            if(!new File(originFilePath).exists()){
-                String originFileUrl = request.getFileUrl();
-                if(StringUtils.isEmpty(originFileUrl)){
-                    LOG.warn(">>>>>本地源文件不存在，且未提供文件服务器地址,该任务直接删除！");
-                    this.deleteSchedule(scheduleId, originFilePath);
-                    return;
-                }
-                //下载到本地
-                //TODO originFilePath = xx
             }
 
             //通过JavaBean和准备的入参执行转码操作  --  并返回包装结果
@@ -212,7 +181,7 @@ public class TransCodingJobs {
         private void deleteSchedule(String scheduleId, String originFilePath){
             fileAuxiliaryService.deleteFileTransSchedule(scheduleId);
             //临时文件删除控制(任务表不存在其他对应的转码任务才能删除，否则删除之后转码将会失败)
-            if(1 == fileAuxiliaryService.countFileTransScheduleByFilePath(originFilePath)) {
+            if(0 == fileAuxiliaryService.countFileTransScheduleByFilePath(originFilePath)) {
                 fileAuxiliaryService.deleteTempFile(scheduleId, originFilePath);
             }
         }
@@ -224,5 +193,59 @@ public class TransCodingJobs {
         public void setRequest(FileRequestTransDO request) {
             this.request = request;
         }
+    }
+
+    /**
+     * 增加任务执行次数
+     */
+    private void addScheduleNum(FileTransSchedule fileTransSchedule){
+        FileTransSchedule update = new FileTransSchedule();
+        update.setId(fileTransSchedule.getId());
+        update.setScheduleNum(fileTransSchedule.getScheduleNum()+1);
+        update.setGmtModified(System.currentTimeMillis());
+        fileTransScheduleMapper.updateByPrimaryKeySelective(update);
+    }
+
+    /**
+     * 判断是否需要执行当前任务
+     *     * 处于转码中
+     *     * 如果发生错误，每一次需要间隔10分钟(不要跟30秒的定时任务混淆)
+     *     true: 通过校验需要执行 false: 未通过校验无需执行
+     * @param fileTransSchedule
+     */
+    private boolean isNext(FileTransSchedule fileTransSchedule){
+        //上一次修改时间
+        long modifyTime = fileTransSchedule.getGmtModified();
+        //当前时间
+        long currentTime = System.currentTimeMillis();
+        //已执行次数
+        int scheduleTime = fileTransSchedule.getScheduleNum();
+        //如果错误后第二次及以上，需要间隔10分钟
+        if(scheduleTime > 0 && (((currentTime - modifyTime)/1000)/60) < 10){
+            //中断此次循环，继续下次循环
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 封装请求转码数据（入参）
+     * @param fileTransSchedule
+     * @return
+     */
+    private FileRequestTransDO genRequestParam(FileTransSchedule fileTransSchedule){
+        String transType = fileTransSchedule.getTransType();
+        String fileId = fileTransSchedule.getFileId();
+        Files fileInfo = filesMapper.selectByPrimaryKey(fileId);
+        FileRequestTransDO request = new FileRequestTransDO();
+        request.setFileId(fileId);
+        request.setFileName(fileTransSchedule.getFileName());
+        request.setFilePath(fileTransSchedule.getFilePath());
+        request.setFileUrl(fileTransSchedule.getOriginUrl());
+        request.setTransType(transType);
+        request.setScheduleId(fileTransSchedule.getId());
+        request.setThumbnail(fileInfo.getThumbnail());
+        request.setProcessInstance(fileTransSchedule.getProcessInstance());
+        return request;
     }
 }

@@ -1,7 +1,7 @@
 package com.mrxu.cloud.file.service.process.trans.oss;
 
 
-import com.mrxu.cloud.file.domain.entity.trans.TransCodingDTO;
+import com.mrxu.cloud.file.domain.trans.TransCodingDTO;
 
 public interface ITransCodeService {
 	/**

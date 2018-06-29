@@ -9,12 +9,12 @@ import com.mrxu.cloud.file.config.ApplicationContextRegister;
 import com.mrxu.cloud.file.config.FDSFConfig;
 import com.mrxu.cloud.file.depend.VestaService;
 import com.mrxu.cloud.file.domain.*;
-import com.mrxu.cloud.file.domain.entity.file.FileResultVO;
-import com.mrxu.cloud.file.domain.entity.process.sync.FileRequestSyncDTO;
-import com.mrxu.cloud.file.domain.entity.process.sync.FileResponseExtendSyncDTO;
-import com.mrxu.cloud.file.domain.entity.process.sync.FileResponseExtendTargetSyncDTO;
-import com.mrxu.cloud.file.domain.entity.process.sync.FileResponseSyncDTO;
-import com.mrxu.cloud.file.domain.entity.trans.TransCodingResultVO;
+import com.mrxu.cloud.file.domain.file.FileResultVO;
+import com.mrxu.cloud.file.domain.process.sync.FileRequestSyncDTO;
+import com.mrxu.cloud.file.domain.process.sync.FileResponseExtendSyncDTO;
+import com.mrxu.cloud.file.domain.process.sync.FileResponseExtendDetailSyncDTO;
+import com.mrxu.cloud.file.domain.process.sync.FileResponseSyncDTO;
+import com.mrxu.cloud.file.domain.trans.TransCodingResultVO;
 import com.mrxu.cloud.file.enums.ProcessModeEnum;
 import com.mrxu.cloud.file.enums.StatusEnum;
 import com.mrxu.cloud.file.enums.TransTypeEnum;
@@ -272,7 +272,9 @@ public class FDFSFileServiceImpl implements IFileService {
 				if(processMode.equalsIgnoreCase(ProcessModeEnum.sync.getItemValue())){
 					//同步：直接封装fileResult
 					//获取JavaBean实例
-					IFileProcessService<FileRequestSyncDTO, FileResponseSyncDTO> processService = (IFileProcessService<FileRequestSyncDTO, FileResponseSyncDTO>) ApplicationContextRegister.getBean(processInstance);
+					IFileProcessService<FileRequestSyncDTO, FileResponseSyncDTO> processService =
+							(IFileProcessService<FileRequestSyncDTO, FileResponseSyncDTO>)
+									ApplicationContextRegister.getBean(processInstance);
 					fileResponseSync = processService.process(fileRequestSync);
 					if(null == fileResponseSync){
 						throw new MrxuException(MrxuExceptionEnums.RC_COMMON_ERROR);
@@ -367,18 +369,18 @@ public class FDFSFileServiceImpl implements IFileService {
 		}
 
 		//存在拓展数据
-		List<FileResponseExtendTargetSyncDTO> targetList = extend.getTargetList();
+		List<FileResponseExtendDetailSyncDTO> targetList = extend.getExtendList();
 		if(null != targetList && !targetList.isEmpty()){
 			//有同步的转码拓展信息，封装入库
 			int index = 1;
-			for(FileResponseExtendTargetSyncDTO target : targetList){
+			for(FileResponseExtendDetailSyncDTO target : targetList){
 				Files filesExtend = new Files();
 
 				filesExtend.setId(String.valueOf(vestaService.genId()) + (index++));
 				filesExtend.setParentId(insertFiles.getId());
 				filesExtend.setUnionKey(target.getUnionKey());
 				//文件URL
-				String targetUrl = target.getTargetUrl();
+				String targetUrl = target.getTransUrl();
 				filesExtend.setUrl(targetUrl);
 				//获取目标文件名称
 				String originFileName = fileResponseSync.getFileName();
@@ -386,9 +388,9 @@ public class FDFSFileServiceImpl implements IFileService {
 				String fileName = originFileName.substring(0, originFileName.lastIndexOf(".")) + "." + targetExtension;
 				filesExtend.setFileName(fileName);
 				//当前文件类型
-				filesExtend.setType(FileTypeUtil.findResTypeEnum(target.getTargetUrl()));
+				filesExtend.setType(FileTypeUtil.findResTypeEnum(target.getTransUrl()));
 				//处理的目标转码类型
-				filesExtend.setTransType(target.getTargetType());
+				filesExtend.setTransType(target.getTransType());
 				filesExtend.setGmtCreate(currentTime);
 				if(StringUtils.isNotEmpty(target.getThumbnail())){
 					filesExtend.setThumbnail(target.getThumbnail());
@@ -538,7 +540,7 @@ public class FDFSFileServiceImpl implements IFileService {
 		//* 拓展名
 		String extension = FileUtil.getFileExtName(uploadFileName).toLowerCase();
 		if (StringUtils.isEmpty(extension)) {
-			throw new MrxuException(MrxuExceptionEnums.RC_COMMON_ERROR);
+			throw new MrxuException(MrxuExceptionEnums.RC_SPC_FILE_EXT_NOT_EXIST);
 		}
 		//* 文件大小
 		long fileSize = file.getSize();

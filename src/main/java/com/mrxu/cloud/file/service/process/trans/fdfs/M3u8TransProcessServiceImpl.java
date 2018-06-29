@@ -6,9 +6,9 @@ import com.mrxu.cloud.common.util.CMDExecteUtil;
 import com.mrxu.cloud.common.util.FileUtil;
 import com.mrxu.cloud.file.config.FDSFConfig;
 import com.mrxu.cloud.file.depend.VestaService;
-import com.mrxu.cloud.file.domain.entity.process.async.FileRequestTransDO;
-import com.mrxu.cloud.file.domain.entity.process.async.FileResponseTransDO;
-import com.mrxu.cloud.file.domain.entity.trans.TransExtendDTO;
+import com.mrxu.cloud.file.domain.process.async.FileRequestTransDO;
+import com.mrxu.cloud.file.domain.process.async.FileResponseTransDO;
+import com.mrxu.cloud.file.domain.trans.TransExtendDTO;
 import com.mrxu.cloud.file.service.file.IFileService;
 import com.mrxu.cloud.file.service.process.IFileProcessService;
 import com.mrxu.cloud.file.util.FileTypeUtil;
@@ -60,7 +60,7 @@ public class M3u8TransProcessServiceImpl implements IFileProcessService<FileRequ
             //TODO 文件不存在需要下载到本地再处理
             String originUrl = request.getFileUrl();
             //下载
-            FileUtil.downLoadFromUrl(originUrl, fileName, filePath);
+            FileUtil.downLoadFromUrl(originUrl, filePath);
         }
         //转码拓展
         List<TransExtendDTO> tsList = new ArrayList<>();
@@ -94,7 +94,7 @@ public class M3u8TransProcessServiceImpl implements IFileProcessService<FileRequ
                     bw.write(ts + "\n");
                     continue;
                 }
-                tsUrl = this.fileService.uploadFileToServer(tempDir + "/" + ts,true,false);
+                tsUrl = this.fileService.uploadFileToServer(tempDir + "/" + ts,true,true);
                 bw.write(tsUrl.substring(tsUrl.lastIndexOf("/") + 1) + "\n");
                 TransExtendDTO transExtend = new TransExtendDTO();
                 transExtend.setFileName(request.getFileName());

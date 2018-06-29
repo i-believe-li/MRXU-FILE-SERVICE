@@ -2,7 +2,7 @@ package com.mrxu.cloud.file.service.process.trans.oss;
 
 
 import com.mrxu.cloud.common.enums.MTSTranscodingEnum;
-import com.mrxu.cloud.file.domain.entity.trans.TransCodingDTO;
+import com.mrxu.cloud.file.domain.trans.TransCodingDTO;
 
 /**
  * 系统媒体服务

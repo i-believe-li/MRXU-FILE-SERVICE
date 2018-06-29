@@ -5,9 +5,9 @@ import com.mrxu.cloud.common.exception.MrxuException;
 import com.mrxu.cloud.file.domain.FileTransScheduleExample;
 import com.mrxu.cloud.file.domain.Files;
 import com.mrxu.cloud.file.domain.FilesExample;
-import com.mrxu.cloud.file.domain.entity.file.FileResultExtendTargetVO;
-import com.mrxu.cloud.file.domain.entity.file.FileResultExtendVO;
-import com.mrxu.cloud.file.domain.entity.file.FileResultVO;
+import com.mrxu.cloud.file.domain.file.FileResultExtendDetailVO;
+import com.mrxu.cloud.file.domain.file.FileResultExtendVO;
+import com.mrxu.cloud.file.domain.file.FileResultVO;
 import com.mrxu.cloud.file.enums.TransTypeEnum;
 import com.mrxu.cloud.file.mapper.FileTransScheduleMapper;
 import com.mrxu.cloud.file.mapper.FilesMapper;
@@ -47,6 +47,7 @@ public class FileAuxiliaryService {
         fileResult.setFileType(files.getType());
         fileResult.setThumbnail(files.getThumbnail());
         fileResult.setUrl(files.getUrl());
+        fileResult.setFileName(files.getFileName());
 
         //判断是否有拓展信息
         FilesExample extendExample = new FilesExample();
@@ -63,12 +64,15 @@ public class FileAuxiliaryService {
         } else if(files.getType().equalsIgnoreCase(ResTypeEnum.Zip.getItemValue())){
             //模型文件集
             extend.setExtendType(TransTypeEnum.Model.getItemValue());
+        } else if(files.getType().equalsIgnoreCase(ResTypeEnum.Video.getItemValue())){
+            //模型文件集
+            extend.setExtendType("VideoTrans");
         } else {
             //默认的拓展类型
             extend.setExtendType("default");
         }
         //拓展目标详情
-        List<FileResultExtendTargetVO> extendTargetList = new ArrayList<>();
+        List<FileResultExtendDetailVO> extendTargetList = new ArrayList<>();
         int i = 1;
         for(Files extendFile : extendFileList){
             //子文件类型
@@ -77,14 +81,14 @@ public class FileAuxiliaryService {
             String childUrl = extendFile.getUrl();
             if (StringUtils.isEmpty(childType)) continue;
             //单个拓展详情
-            FileResultExtendTargetVO target = new FileResultExtendTargetVO();
+            FileResultExtendDetailVO target = new FileResultExtendDetailVO();
             target.setOrder(i++);
-            target.setTargetUrl(childUrl);
-            target.setTargetType(extendFile.getTransType());
+            target.setTransUrl(childUrl);
+            target.setTransType(extendFile.getTransType());
             target.setThumbnail(extendFile.getThumbnail());
             extendTargetList.add(target);
         }
-        extend.setTargetList(extendTargetList);
+        extend.setExtendList(extendTargetList);
         fileResult.setExtend(extend);
         return fileResult;
     }
@@ -169,7 +173,7 @@ public class FileAuxiliaryService {
     /**
      * 
     * @Title: countFileTransScheduleByFilePath  
-    * @Description: TODO(验证临时文件是否也为其他转码任务提供支持) 
+    * @Description: 验证临时文件是否也为其他转码任务提供支持
     * @param filePath 临时文件路径
     * @return long
     * @author ifocusing-wangjiafei

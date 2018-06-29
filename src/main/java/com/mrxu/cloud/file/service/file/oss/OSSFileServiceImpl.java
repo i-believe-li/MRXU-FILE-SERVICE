@@ -2,8 +2,8 @@ package com.mrxu.cloud.file.service.file.oss;
 
 import com.mrxu.cloud.common.exception.MrxuException;
 import com.mrxu.cloud.file.config.AliyunOSSConfig;
-import com.mrxu.cloud.file.domain.entity.file.FileResultVO;
-import com.mrxu.cloud.file.domain.entity.trans.TransCodingResultVO;
+import com.mrxu.cloud.file.domain.file.FileResultVO;
+import com.mrxu.cloud.file.domain.trans.TransCodingResultVO;
 import com.mrxu.cloud.file.service.file.IFileService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

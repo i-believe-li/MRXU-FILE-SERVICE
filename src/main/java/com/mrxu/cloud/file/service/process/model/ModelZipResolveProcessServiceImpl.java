@@ -3,10 +3,10 @@ package com.mrxu.cloud.file.service.process.model;
 import com.mrxu.cloud.common.enums.MrxuExceptionEnums;
 import com.mrxu.cloud.common.exception.MrxuException;
 import com.mrxu.cloud.common.util.FileUtil;
-import com.mrxu.cloud.file.domain.entity.process.sync.FileRequestSyncDTO;
-import com.mrxu.cloud.file.domain.entity.process.sync.FileResponseExtendSyncDTO;
-import com.mrxu.cloud.file.domain.entity.process.sync.FileResponseExtendTargetSyncDTO;
-import com.mrxu.cloud.file.domain.entity.process.sync.FileResponseSyncDTO;
+import com.mrxu.cloud.file.domain.process.sync.FileRequestSyncDTO;
+import com.mrxu.cloud.file.domain.process.sync.FileResponseExtendDetailSyncDTO;
+import com.mrxu.cloud.file.domain.process.sync.FileResponseExtendSyncDTO;
+import com.mrxu.cloud.file.domain.process.sync.FileResponseSyncDTO;
 import com.mrxu.cloud.file.enums.ResTypeEnum;
 import com.mrxu.cloud.file.enums.TransTypeEnum;
 import com.mrxu.cloud.file.service.file.IFileService;
@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,31 +50,31 @@ public class ModelZipResolveProcessServiceImpl implements IFileProcessService<Fi
         if (tmpFileDir.isDirectory()) {
 
             modelExtend.setExtendType(TransTypeEnum.Model.getItemValue());
-            List<FileResponseExtendTargetSyncDTO> targetExtendList = new ArrayList<>();
+            List<FileResponseExtendDetailSyncDTO> targetExtendList = new ArrayList<>();
             String[] fileList = tmpFileDir.list();
             for (int i = 0; i < fileList.length; i++) {
                 String modelFilePath = tmpFileDir + "/" + fileList[i];
                 String unionKey = FileUtil.calculateFileMD5(new File(modelFilePath), false);
                 String modelUrl = this.fdfsService.uploadFileToServer(modelFilePath, true, true);
                 //拓展详情
-                FileResponseExtendTargetSyncDTO extendTarget = new FileResponseExtendTargetSyncDTO();
+                FileResponseExtendDetailSyncDTO extendTarget = new FileResponseExtendDetailSyncDTO();
                 extendTarget.setUnionKey(unionKey);
                 extendTarget.setOrder(i+1);
-                extendTarget.setTargetUrl(modelUrl);
+                extendTarget.setTransType(modelUrl);
                 if (FileTypeUtil.findResTypeEnum(modelFilePath).equalsIgnoreCase(ResTypeEnum.AndriodModel.getItemValue())) {
-                    extendTarget.setTargetType(ResTypeEnum.AndriodModel.getItemValue());
+                    extendTarget.setTransType(ResTypeEnum.AndriodModel.getItemValue());
                 } else if (FileTypeUtil.findResTypeEnum(modelFilePath).equalsIgnoreCase(ResTypeEnum.IosModel.getItemValue())) {
-                    extendTarget.setTargetType(ResTypeEnum.IosModel.getItemValue());
+                    extendTarget.setTransType(ResTypeEnum.IosModel.getItemValue());
                 } else if (FileTypeUtil.findResTypeEnum(modelFilePath).equalsIgnoreCase(ResTypeEnum.WindowModel.getItemValue())) {
-                    extendTarget.setTargetType(ResTypeEnum.WindowModel.getItemValue());
+                    extendTarget.setTransType(ResTypeEnum.WindowModel.getItemValue());
                 } else if (FileTypeUtil.findResTypeEnum(modelFilePath).equalsIgnoreCase(ResTypeEnum.HoloModel.getItemValue())) {
-                    extendTarget.setTargetType(ResTypeEnum.HoloModel.getItemValue());
+                    extendTarget.setTransType(ResTypeEnum.HoloModel.getItemValue());
                 } else if (FileTypeUtil.findResTypeEnum(modelFilePath).equalsIgnoreCase(ResTypeEnum.ModelConf.getItemValue())) {
-                    extendTarget.setTargetType(ResTypeEnum.ModelConf.getItemValue());
+                    extendTarget.setTransType(ResTypeEnum.ModelConf.getItemValue());
                 }
                 targetExtendList.add(extendTarget);
             }
-            modelExtend.setTargetList(targetExtendList);
+            modelExtend.setExtendList(targetExtendList);
         } else {
             throw new MrxuException(MrxuExceptionEnums.RC_COMMON_ERROR);
         }

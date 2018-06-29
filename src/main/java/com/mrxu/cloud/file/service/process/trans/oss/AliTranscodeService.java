@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.mrxu.cloud.common.enums.MTSTranscodingEnum;
-import com.mrxu.cloud.file.domain.entity.trans.TransCodingDTO;
+import com.mrxu.cloud.file.domain.trans.TransCodingDTO;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

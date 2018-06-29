@@ -4,8 +4,8 @@ import com.mrxu.cloud.common.exception.MrxuException;
 import com.mrxu.cloud.common.util.CMDExecteUtil;
 import com.mrxu.cloud.common.util.FileUtil;
 import com.mrxu.cloud.file.depend.VestaService;
-import com.mrxu.cloud.file.domain.entity.process.async.FileRequestTransDO;
-import com.mrxu.cloud.file.domain.entity.process.async.FileResponseTransDO;
+import com.mrxu.cloud.file.domain.process.async.FileRequestTransDO;
+import com.mrxu.cloud.file.domain.process.async.FileResponseTransDO;
 import com.mrxu.cloud.file.service.file.IFileService;
 import com.mrxu.cloud.file.service.process.IFileProcessService;
 import com.mrxu.cloud.file.util.FileTypeUtil;
@@ -48,7 +48,7 @@ public class Mp4TransProcessServiceImpl implements IFileProcessService<FileReque
             //TODO 文件不存在需要下载到本地再处理
             String originUrl = request.getFileUrl();
             //下载
-            FileUtil.downLoadFromUrl(originUrl, fileName, filePath);
+            FileUtil.downLoadFromUrl(originUrl, filePath);
         }
         //目标文件存放地址
         String mp4FilePath = filePath + vestaService.genId() + ".mp4";

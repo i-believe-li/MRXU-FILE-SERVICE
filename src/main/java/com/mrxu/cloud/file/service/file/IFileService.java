@@ -1,8 +1,8 @@
 package com.mrxu.cloud.file.service.file;
 
 import com.mrxu.cloud.common.exception.MrxuException;
-import com.mrxu.cloud.file.domain.entity.file.FileResultVO;
-import com.mrxu.cloud.file.domain.entity.trans.TransCodingResultVO;
+import com.mrxu.cloud.file.domain.file.FileResultVO;
+import com.mrxu.cloud.file.domain.trans.TransCodingResultVO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
