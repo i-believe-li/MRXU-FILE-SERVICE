@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -28,6 +29,11 @@ public class OSSFileServiceImpl implements IFileService {
 	@Override
 	public FileResultVO uploadFile(MultipartFile file) throws MrxuException {
 		return null;
+	}
+
+	@Override
+	public void uploadLocalMovie(File file) throws MrxuException {
+
 	}
 
 	@Override

@@ -10,12 +10,16 @@ import com.mrxu.cloud.file.config.FDSFConfig;
 import com.mrxu.cloud.file.depend.VestaService;
 import com.mrxu.cloud.file.domain.*;
 import com.mrxu.cloud.file.domain.file.FileResultVO;
+import com.mrxu.cloud.file.domain.process.async.FileRequestTransDO;
+import com.mrxu.cloud.file.domain.process.async.FileResponseTransDO;
 import com.mrxu.cloud.file.domain.process.sync.FileRequestSyncDTO;
 import com.mrxu.cloud.file.domain.process.sync.FileResponseExtendSyncDTO;
 import com.mrxu.cloud.file.domain.process.sync.FileResponseExtendDetailSyncDTO;
 import com.mrxu.cloud.file.domain.process.sync.FileResponseSyncDTO;
 import com.mrxu.cloud.file.domain.trans.TransCodingResultVO;
+import com.mrxu.cloud.file.domain.trans.TransExtendDTO;
 import com.mrxu.cloud.file.enums.ProcessModeEnum;
+import com.mrxu.cloud.file.enums.ResTypeEnum;
 import com.mrxu.cloud.file.enums.StatusEnum;
 import com.mrxu.cloud.file.enums.TransTypeEnum;
 import com.mrxu.cloud.file.mapper.FileTransScheduleMapper;
@@ -36,6 +40,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -66,6 +71,11 @@ public class FDFSFileServiceImpl implements IFileService {
 	FileTypeMapper fileTypeMapper;
 	@Autowired
 	FileTypeExtensionMapper fileTypeExtensionMapper;
+	@Resource(name = "m3u8TransProcess")
+	IFileProcessService<FileRequestTransDO, FileResponseTransDO> m3u8ProcessService;
+	@Resource(name = "picTransProcess")
+	IFileProcessService<FileRequestSyncDTO, FileResponseSyncDTO> picProcessService;
+
 
 	private static StorageClient1 storageClient1 = null;
 
@@ -86,6 +96,30 @@ public class FDFSFileServiceImpl implements IFileService {
 			throw new MrxuException(MrxuExceptionEnums.RC_COMMON_ERROR);
 		}
 		return fileResult;
+	}
+
+	@Override
+	public void uploadLocalMovie(File file) throws MrxuException {
+		init();
+		//获取视屏基本信息
+		FileRequestSyncDTO fileRequestSync = this.findLocalMovieInfo(file);
+		String extension = fileRequestSync.getExtension();
+		if(StringUtils.isEmpty(extension) || !extension.equalsIgnoreCase("mp4")){
+			//不是mp4也无需处理，可以直接删除
+			if(file.exists()){
+				file.delete();
+			}
+			return;
+		}
+
+		//文件校验 -- 若已上传,不处理直接返回
+		FileResultVO fileResult = this.fileCustomService.findFileResultByUnionKey(fileRequestSync.getUnionKey());
+		if(null != fileResult){
+			LOG.warn("该视屏已经上传！");
+			return;
+		}
+
+		this.uploadMovie(fileRequestSync);
 	}
 
 	@Override
@@ -233,6 +267,62 @@ public class FDFSFileServiceImpl implements IFileService {
 		fileTransScheduleExample.createCriteria().andFileIdEqualTo(transParentId).andTransTypeEqualTo(targetType);
 		List<FileTransSchedule> fileTransScheduleList = fileTransScheduleMapper.selectByExample(fileTransScheduleExample);
 		return null;
+	}
+
+	/**
+	 * 上传电影具体操作
+	 * @param fileRequestSync
+	 */
+	public void uploadMovie(FileRequestSyncDTO fileRequestSync) throws MrxuException{
+		Long currentTime = System.currentTimeMillis();
+		//获取电影抽针缩略图
+		FileResponseSyncDTO responseSync = picProcessService.process(fileRequestSync);
+		FileRequestTransDO fileRequestTrans = new FileRequestTransDO();
+		fileRequestTrans.setFilePath(fileRequestSync.getFilePath());
+		fileRequestTrans.setFileName(fileRequestSync.getFileName());
+		fileRequestTrans.setTransType("m3u8");
+		fileRequestTrans.setThumbnail(responseSync.getThumbnail());
+		//m3u8转码操作
+		FileResponseTransDO fileResponseTransDO = this.m3u8ProcessService.process(fileRequestTrans);
+		//这个地方还是需要存入mp4的MD5 -- 特殊处理
+		fileResponseTransDO.setTargetUnionCode(fileRequestSync.getUnionKey());
+		//封装进入文件系统
+		String m3u8Id = String.valueOf(vestaService.genId());
+		Files file_m3u8 = new Files();
+		file_m3u8.setId(m3u8Id);
+		file_m3u8.setParentId("0");
+		file_m3u8.setUnionKey(fileResponseTransDO.getTargetUnionCode());
+		file_m3u8.setCreatorId("0");
+		file_m3u8.setGmtCreate(currentTime);
+		file_m3u8.setFileName(fileResponseTransDO.getTargetFileName());
+		file_m3u8.setUrl(fileResponseTransDO.getTargetUrl());
+		file_m3u8.setTransType(TransTypeEnum.M3u8.getItemValue());
+		file_m3u8.setType(FileTypeUtil.findResTypeEnum("test.m3u8"));
+		file_m3u8.setThumbnail(fileResponseTransDO.getTargetThumbnail());
+		file_m3u8.setStatus(StatusEnum.on.getItemValue());;
+		file_m3u8.setDescription("m3u8视频");
+		fileCustomService.saveFileInfo(file_m3u8);
+		//ts
+		List<TransExtendDTO> list = fileResponseTransDO.getList();
+		if (null != list && !list.isEmpty()) {
+			int index = 1;
+			for (TransExtendDTO transExtendDTO : list) {
+				Files file_ts = new Files();
+				file_ts.setId(m3u8Id + (index++));
+				file_ts.setParentId(m3u8Id);
+				file_ts.setCreatorId("0");
+				file_ts.setGmtCreate(currentTime);
+				file_ts.setUnionKey("0");
+				file_ts.setUrl(transExtendDTO.getTargetUrl());
+				file_ts.setFileName(transExtendDTO.getFileName());
+				file_ts.setTransType(TransTypeEnum.Ts.getItemValue());
+				file_ts.setType(FileTypeUtil.findResTypeEnum("test.ts"));
+				file_ts.setDescription("ts资源");
+				file_ts.setStatus(StatusEnum.on.getItemValue());
+				fileCustomService.saveFileInfo(file_ts);
+			}
+		}
+		//TODO 封装进入电影表,只需要m3u8文件
 	}
 
 	/**
@@ -570,6 +660,42 @@ public class FDFSFileServiceImpl implements IFileService {
 		fileRequestInfo.setFileDir(this.config.getLocalPath());
 		fileRequestInfo.setFileSize(fileSize);
 		fileRequestInfo.setFilePath(filePath);
+		fileRequestInfo.setUnionKey(unionKey);
+		fileRequestInfo.setFileType(type);
+		return fileRequestInfo;
+	}
+
+	/**
+	 * 获取上传文件信息
+	 *     将上传文件删除
+	 * @param file
+	 * @return
+	 */
+	public FileRequestSyncDTO findLocalMovieInfo(File file) throws MrxuException{
+		//源文件名
+		String uploadFileName = file.getName();
+		//拓展名
+		String extension = FileUtil.getFileExtName(uploadFileName).toLowerCase();
+		if (StringUtils.isEmpty(extension)) {
+			throw new MrxuException(MrxuExceptionEnums.RC_SPC_FILE_EXT_NOT_EXIST);
+		}
+		//获取文件类型
+		String type = FileTypeUtil.findResTypeEnum(uploadFileName);
+		//文件大小
+		long fileSize = file.length();
+		if(fileSize <= 0){
+			throw new MrxuException(MrxuExceptionEnums.RC_COMMON_ERROR);
+		}
+		//* 计算MD5
+		String unionKey = FileUtil.calculateFileMD5(file, false);
+
+		//封装上传文件信息
+		FileRequestSyncDTO fileRequestInfo = new FileRequestSyncDTO();
+		fileRequestInfo.setFileName(uploadFileName);
+		fileRequestInfo.setExtension(extension);
+		fileRequestInfo.setFileDir(this.config.getLocalPath());
+		fileRequestInfo.setFileSize(fileSize);
+		fileRequestInfo.setFilePath(file.getAbsolutePath());
 		fileRequestInfo.setUnionKey(unionKey);
 		fileRequestInfo.setFileType(type);
 		return fileRequestInfo;

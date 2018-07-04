@@ -5,6 +5,7 @@ import com.mrxu.cloud.file.domain.file.FileResultVO;
 import com.mrxu.cloud.file.domain.trans.TransCodingResultVO;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -21,6 +22,13 @@ public interface IFileService {
      * @throws MrxuException
      */
     FileResultVO uploadFile(MultipartFile file) throws MrxuException;
+
+    /**
+     * 上传本地视屏文件
+     *      目前只支持mp4
+     * @throws MrxuException
+     */
+    void uploadLocalMovie(File file) throws MrxuException;
 
     /**
      * 上传多个文件
