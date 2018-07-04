@@ -25,7 +25,7 @@ import java.util.List;
  * @author ifocusing-xuzhiwei
  * @since 2017/11/22
  */
-@Component
+//@Component
 public class TransCodingJobs {
 
     private static Logger LOG = Logger.getLogger(TransCodingJobs.class);
