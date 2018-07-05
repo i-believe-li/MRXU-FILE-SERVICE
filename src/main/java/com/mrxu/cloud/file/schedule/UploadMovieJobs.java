@@ -30,14 +30,27 @@ public class UploadMovieJobs {
     @Scheduled(fixedDelay = HALF_MINUTES)
     public void fixedDelayJob(){
         File file = new File(localVideoDir);
-        if(file.isDirectory()){
+        if(!file.isDirectory()){
             LOG.warn(localVideoDir + "不是一个有效的目录！");
         }
         File[] files = file.listFiles();
         if(files.length > 0){
-            for(File movie : files){
-                this.fileService.uploadLocalMovie(movie);
+            for(File movieFile : files){
+                VideoServiceThread videoServiceThread = new VideoServiceThread(movieFile);
+                videoServiceThread.start();
             }
+        }
+    }
+
+    class VideoServiceThread extends Thread{
+        private File movie;
+        public VideoServiceThread(File movie){
+            this.movie = movie;
+        }
+
+        @Override
+        public void run() {
+            fileService.uploadLocalMovie(movie);
         }
     }
 }
