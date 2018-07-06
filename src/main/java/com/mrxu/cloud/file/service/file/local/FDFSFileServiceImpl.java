@@ -142,7 +142,7 @@ public class FDFSFileServiceImpl implements IFileService {
 	 * @return
 	 */
 	@Override
-	public String uploadFileToServer(String file, boolean isFullPath, boolean isDelete) throws MrxuException{
+	public synchronized String uploadFileToServer(String file, boolean isFullPath, boolean isDelete) throws MrxuException{
 		//FDFS初始化
 		this.init();
 

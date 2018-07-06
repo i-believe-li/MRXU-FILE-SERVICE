@@ -85,7 +85,7 @@ public class M3u8TransProcessServiceImpl implements IFileProcessService<FileRequ
             fw = new FileWriter(m3u8NewFullPath);
             bw = new BufferedWriter(fw); // 将流整体写入。
             String str;
-            String tsUrl;
+            String tmpFile;
             while ((str = br.readLine()) != null) {// 判断是否是最后一行
                 if (StringUtils.isEmpty(str)) {
                     continue;
@@ -94,11 +94,11 @@ public class M3u8TransProcessServiceImpl implements IFileProcessService<FileRequ
                     bw.write(str + "\n");
                     continue;
                 }
-                tsUrl = this.fileService.uploadFileToServer(str,true,true);
-                bw.write(tsUrl.substring(tsUrl.lastIndexOf("/") + 1) + "\n");
+                tmpFile = this.fileService.uploadFileToServer(tempDir + str,true,true);
+                bw.write(tmpFile.substring(tmpFile.lastIndexOf("/") + 1) + "\n");
                 TransExtendDTO transExtend = new TransExtendDTO();
                 transExtend.setFileName(request.getFileName());
-                transExtend.setTargetUrl(tsUrl);
+                transExtend.setTargetUrl(tmpFile);
                 transExtend.setTransType("ts");
                 transExtend.setType("ts");
                 tsList.add(transExtend);
