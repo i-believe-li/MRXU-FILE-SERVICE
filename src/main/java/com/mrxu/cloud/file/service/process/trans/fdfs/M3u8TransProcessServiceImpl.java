@@ -97,7 +97,7 @@ public class M3u8TransProcessServiceImpl implements IFileProcessService<FileRequ
                 tmpFile = this.fileService.uploadFileToServer(tempDir + str,true,true);
                 bw.write(tmpFile.substring(tmpFile.lastIndexOf("/") + 1) + "\n");
                 TransExtendDTO transExtend = new TransExtendDTO();
-                transExtend.setFileName(request.getFileName());
+                transExtend.setFileName(fileName + ".ts");
                 transExtend.setTargetUrl(tmpFile);
                 transExtend.setTransType("ts");
                 transExtend.setType("ts");
